@@ -32,8 +32,9 @@ where log_date >= '",FStartDate,"' and log_date <='",FEndDate,"'")
 #' @examples
 #' getCspRpt()
 getQianNiu2Rpt <- function(conn=conn_rds_nsic(),FStartDate='2020-04-28',FEndDate='2020-05-07'){
-  sql <- paste0("select FUser 导购,FDate 日志日期,FSessionCount 会话数    from t_kf_logStat
-where FDate >= '",FStartDate,"' and FDate <='",FEndDate,"'")
+  sql <- paste0("
+select FUser as 导购,FDate as 日期,FTotalCount as 记录数, FQuesCount as Q数, FAnswCount as A数,FBotCount as 平台数, FBotRatio as [使用率(%)]   from  t_ic_statALL
+where FDate >='",FStartDate,"' and FDate <='",FEndDate,"' order by FDate desc,FUser asc")
   r <- tsda::sql_select(conn,sql)
   return(r)
 
