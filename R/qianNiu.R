@@ -67,7 +67,54 @@ where FUser ='",FUser,"'and FDate='",FDate,"'")
 }
 
 
+#' 查询千牛日志按导购人员
+#'
+#' @param conn 连接
+#' @param FUser 用户
+#'
+#' @return 返回数据框
+#' @export
+#'
+#' @examples
+#' getQN_log_byCspName()
+getQN_log_byCspName <- function(conn=conn_rds_nsic(),FUser='admin') {
+  sql <- paste0("select  FUser,FDate,FTotalCount  from t_ic_statALL
+where FUser ='",FUser,"'
+order by FDate desc")
+  r <- tsda::sql_select(conn,sql)
 
+  return(r)
+
+}
+
+#' 返回日志指定日期记录条数
+#'
+#' @param conn 连接
+#' @param FUser 用户
+#' @param FDate 日期
+#'
+#' @return 返回值
+#' @export
+#'
+#' @examples
+#' getQN_logCount_byCspName()
+getQN_logCount_byCspName <- function(conn=conn_rds_nsic(),FUser='admin',FDate='2020-05-01') {
+  sql <- paste0("
+select  FTotalCount  from t_ic_statALL
+where FUser ='",FUser,"' and FDate ='",FDate,"'
+
+")
+  r <- tsda::sql_select(conn,sql)
+  ncount <- nrow(r)
+  if(ncount >0){
+    res <- r$FTotalCount
+  }else{
+    res <- 0
+  }
+
+  return(res)
+
+}
 
 
 
