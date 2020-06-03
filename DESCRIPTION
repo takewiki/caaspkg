@@ -1,9 +1,9 @@
 Package: caaspkg
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.2
+Title: package for caas app
+Version: 0.2.0
 Author: hulilei
-Maintainer: The package maintainer <yourself@somewhere.net>
+Maintainer: hulilei <hulilei@takewiki.com.cn>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
 License: What license is it under?

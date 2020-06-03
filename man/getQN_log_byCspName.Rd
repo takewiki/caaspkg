@@ -4,12 +4,21 @@
 \alias{getQN_log_byCspName}
 \title{查询千牛日志按导购人员}
 \usage{
-getQN_log_byCspName(conn = conn_rds_nsic(), FUser = "admin")
+getQN_log_byCspName(
+  conn = conn_rds_nsic(),
+  FUser = "admin",
+  FStartDate = "2020-04-28",
+  FEndDate = "2020-05-07"
+)
 }
 \arguments{
 \item{conn}{连接}
 
 \item{FUser}{用户}
+
+\item{FStartDate}{开始日期}
+
+\item{FEndDate}{结束日期}
 }
 \value{
 返回数据框

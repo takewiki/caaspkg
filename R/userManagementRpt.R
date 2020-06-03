@@ -21,3 +21,23 @@ and b.Fkey ='fcompany'")
   return(r)
 
 }
+
+
+#' 判断新用户
+#'
+#' @param conn 连接
+#' @param app_id 程序
+#' @param users 用户
+#'
+#' @return 返回逻辑值
+#' @export
+#'
+#' @examples
+#' getNewUsers()
+getNewUsers <- function(conn=conn_rds('rdbe'),app_id='caas',users){
+  sql <- paste0("select Fuser from t_md_userRight where FappId = '",app_id,"'")
+  r <- tsda::sql_select(conn,sql)
+  data <- r$Fuser
+  res <- ! users %in% data
+  return(res)
+  }

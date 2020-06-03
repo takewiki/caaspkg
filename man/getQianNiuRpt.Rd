@@ -7,7 +7,8 @@
 getQianNiuRpt(
   conn = conn_rds_nsic(),
   FStartDate = "2020-04-28",
-  FEndDate = "2020-05-07"
+  FEndDate = "2020-05-07",
+  FUser = "demo"
 )
 }
 \arguments{
@@ -16,6 +17,8 @@ getQianNiuRpt(
 \item{FStartDate}{开始日期}
 
 \item{FEndDate}{结束日期}
+
+\item{FUser}{导购员}
 }
 \value{
 返回数据

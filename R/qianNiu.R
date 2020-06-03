@@ -3,6 +3,7 @@
 #' @param FStartDate 开始日期
 #' @param FEndDate  结束日期
 #' @param conn 连接
+#' @param FUser 导购员
 #'
 #' @return 返回数据
 #' @import tsda
@@ -10,9 +11,9 @@
 #'
 #' @examples
 #' getCspRpt()
-getQianNiuRpt <- function(conn=conn_rds_nsic(),FStartDate='2020-04-28',FEndDate='2020-05-07'){
-  sql <- paste0("select FLog  as 日志原文,log_datetime  as 日期时间,log_date as 日期,log_time  as 时间,author  as 对象 ,content  as 会话,FUser 用户,FUploadDate 上传日志,FIsA  品牌方 from t_kf_log
-where log_date >= '",FStartDate,"' and log_date <='",FEndDate,"'")
+getQianNiuRpt <- function(conn=conn_rds_nsic(),FStartDate='2020-04-28',FEndDate='2020-05-07',FUser='demo'){
+  sql <- paste0("select log_date as 日期,log_time  as 时间,author  as 对象 ,content  as 会话,FUser 用户,FUploadDate 上传日志,FIsA  品牌方 from vw_kf_log
+where log_date >= '",FStartDate,"' and log_date <='",FEndDate,"' and FUser = '",FUser,"'")
   r <- tsda::sql_select(conn,sql)
   return(r)
 
@@ -72,15 +73,17 @@ where FUser ='",FUser,"'and FDate='",FDate,"'")
 #'
 #' @param conn 连接
 #' @param FUser 用户
+#' @param FStartDate 开始日期
+#' @param FEndDate  结束日期
 #'
 #' @return 返回数据框
 #' @export
 #'
 #' @examples
 #' getQN_log_byCspName()
-getQN_log_byCspName <- function(conn=conn_rds_nsic(),FUser='admin') {
+getQN_log_byCspName <- function(conn=conn_rds_nsic(),FUser='admin',FStartDate='2020-04-28',FEndDate='2020-05-07') {
   sql <- paste0("select  FUser,FDate,FTotalCount  from t_ic_statALL
-where FUser ='",FUser,"'
+where FUser ='",FUser,"' and FDate >='",FStartDate,"' and FDate <='",FEndDate,"'
 order by FDate desc")
   r <- tsda::sql_select(conn,sql)
 
