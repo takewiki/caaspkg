@@ -280,3 +280,30 @@ qnlog_logTagBatch_writeDB<-function(conn=tsda::conn_rds('nsic'),show_process=FAL
 
 
 }
+
+
+#' 读取打标日志内容
+#'
+#' @param conn 连接
+#' @param FStartDate 开始日期
+#' @param FEndDate 结束日期
+#'
+#' @return 返回值
+#' @export
+#'
+#' @examples
+#' qnlog_logTag_readDB()
+qnlog_logTag_readDB <- function(conn=tsda::conn_rds('nsic'),FStartDate='2020-06-08',FEndDate='2020-06-14'){
+  sql <- paste0("select
+FUser 导购,
+author 客户,
+log_date 日期,
+content 问题,
+Fflag  是否打标,
+Ftag_by 黑名单
+
+from t_kf_logTag where log_date >='",FStartDate,"' and log_date <='",FEndDate,"'")
+  res <- tsda::sql_select(conn,sql)
+  return(res)
+
+}
