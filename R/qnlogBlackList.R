@@ -175,7 +175,11 @@ and FUser ='",FUser,"' and log_date = '",log_date,"'")
 qnlog_logTag_read<-function(conn=tsda::conn_rds('nsic'),FUser='腊梅',log_date='2020-05-03',
                                  dict_contain=qnlog_getBlackList(),dict_eq = qnlog_getBlackList_eq()){
   data <- qnlog_getLog_perUserDate(conn,FUser,log_date)
-  res <- tsdo::df_blackList_tagging(data = data,var_text = 'content',dict_contain = dict_contain,dict_equal = dict_eq)
+  print(paste0(FUser,log_date,nrow(data)))
+
+  res <- try(tsdo::df_blackList_tagging(data = data,var_text = 'content',dict_contain = dict_contain,dict_equal = dict_eq))
+
+
   return(res)
 }
 
@@ -221,12 +225,15 @@ qnlog_logTag_writeDB<-function(conn=tsda::conn_rds('nsic'),FUser='腊梅',log_da
   #fix the data type error
   data$Fflag <- as.character(data$Fflag)
   ncount <- nrow(data)
+  print('start')
+  print(ncount)
   if(ncount >0){
     #删除已有的数据
     qnlog_logTag_delete(conn,FUser,log_date)
 
     #写入数据
-   tsda::upload_data(conn,'t_kf_logTag',data = data)
+   #tsda::upload_data(conn,'t_kf_logTag',data = data)
+    tsda::db_writeTable(conn = conn,table_name = 't_kf_logTag',r_object = data,append = TRUE)
   }
 }
 
