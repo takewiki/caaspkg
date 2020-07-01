@@ -91,7 +91,29 @@ oildCard_selectDB_all <- function(conn=tsda::conn_rds('nsic')) {
 #' oildCard_selectDB2()
 oildCard_selectDB2 <- function(conn=tsda::conn_rds('nsic'),FKeyWord='ljiang1469') {
   sql <- paste0("SELECT
-      FOrderId , FExtendGiftDelivery  FROM  t_ic_oilCard
+      FTBId
+      ,FOrderId
+      ,FLiYu
+	       ,FOrderPhone
+		      ,FCar
+			  ,FTmallOrderTime
+			  ,FLMSStatus
+
+			   ,FLMSOrderTime
+      ,FLMSNewStatus
+
+      ,FVIN
+      ,FVerificationStatus
+      ,FTmallOrderTimeBeforeLMS
+      ,FJudgeFavorableComments
+      ,FJudgeRules_Cause
+      ,FExtendGiftTime
+	  ,FExtendGiftDelivery
+
+      ,Faddress
+	  ,FRemarks
+
+  FROM  t_ic_oilCard
   where FTBId = '",FKeyWord,"' or FOrderId ='",FKeyWord,"' or FOrderPhone ='",FKeyWord,"'")
   #print()
   data <- tsda::sql_select(conn,sql)
@@ -99,7 +121,26 @@ oildCard_selectDB2 <- function(conn=tsda::conn_rds('nsic'),FKeyWord='ljiang1469'
   if(ncount >0){
     if(is.na(data$FExtendGiftDelivery)){
       #未单号
-      msg <- paste0("亲，经查询，您的订单号：",data$FOrderId,"，目前礼包未发放,我们将尽快处理，请稍等")
+      msg <- paste0("TMALL ID: ",tsdo::na_replace(data$FTBId,""),"\n",
+                    "订单号: ",tsdo::na_replace(data$FOrderId,""),"\n",
+                    "礼遇： ",tsdo::na_replace(data$FLiYu,""),"\n",
+                    "拍单手机号： ",tsdo::na_replace(data$FOrderPhone,""),"\n",
+                    "车型： ",tsdo::na_replace(data$FCar,""),"\n",
+                    "天猫下单时间： ",tsdo::na_replace(data$FTmallOrderTime,""),"\n",
+                    "LMS下发状态: ",tsdo::na_replace(data$FLMSStatus,""),"\n",
+                    "LMS下单时间： ",tsdo::na_replace(data$FLMSOrderTime,""),"\n",
+                    "LMS最新状态: ",tsdo::na_replace(data$FLMSNewStatus,""),"\n",
+                    "车架号： ",tsdo::na_replace(data$FVIN,""),"\n",
+                    "核销情况： ",tsdo::na_replace(data$FVerificationStatus,""),"\n",
+                    "天猫下单时间早于LMS下单时间: ",tsdo::na_replace(data$FTmallOrderTimeBeforeLMS,""),"\n",
+                    "是否好评： ",tsdo::na_replace(data$FJudgeFavorableComments,""),"\n",
+                    "是否符合礼遇领取规则或原因：",tsdo::na_replace(data$FJudgeRules_Cause,""),"\n",
+                    "礼包预计发放时间： ",tsdo::na_replace(data$FExtendGiftTime,""),"\n",
+                    "地址： ",tsdo::na_replace(data$Faddress,""),"\n",
+                    "备注： ",tsdo::na_replace(data$FRemarks,""),"\n",
+                    "很抱歉，这边已经将您的问题反馈至专员，目前还未收到专员回复，专员回复后我们这边会第一时间截图并留言给到您，给您带来不便，请见谅。"
+
+          )
     }else{
       msg <- paste0("亲，经查询，您的订单号：",data$FOrderId,"，目前礼包已发放，物流单号为：",data$FExtendGiftDelivery)
 
@@ -128,12 +169,12 @@ oildCard_selectDB2 <- function(conn=tsda::conn_rds('nsic'),FKeyWord='ljiang1469'
 #' oilCard_readExcel()
 oilCard_readExcel <- function(file="data-raw/oilCardData.xlsx") {
   #library(readxl)
-  oilCardData <- readxl::read_excel(file, col_types = c("text", "text", "text",
-                                                        "text", "text", "text", "text", "text",
-                                                        "text", "text", "text", "text", "text",
-                                                        "text", "text", "text", "text", "text",
-                                                        "text", "text", "text", "text", "text",
-                                                        "text", "text", "text"))
+  oilCardData <- readxl::read_excel(file,    col_types = c("text", "text", "text",
+                                                           "text", "text", "text", "text", "text",
+                                                           "numeric", "text", "text", "date",
+                                                           "text", "text", "text", "text", "text",
+                                                           "text", "text", "text", "text", "date",
+                                                           "text", "text", "text", "text"))
   #选择相应的数据
   data <-oilCardData[ ,1:25]
   #针对列进行重命名
@@ -163,6 +204,10 @@ oilCard_readExcel <- function(file="data-raw/oilCardData.xlsx") {
                   'Faddress',
                   'FRemarks')
  names(data) <- col_names
+
+ data$FExtendGiftTime <- as.character(data$FExtendGiftTime)
+ data$FOrderPhone <- as.character(data$FOrderPhone)
+ data$FTmallOrderTime <- as.character(data$FTmallOrderTime)
 
   return(data)
 
