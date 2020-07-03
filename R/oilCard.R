@@ -158,6 +158,68 @@ oildCard_selectDB2 <- function(conn=tsda::conn_rds('nsic'),FKeyWord='ljiang1469'
 }
 
 
+
+#' 处理油卡发货日期异常数据
+#'
+#' @param x 针对日期进行处理
+#'
+#' @return 返回值
+#'
+#' @examples
+#' oilCard_formatDeliverDate()
+oilCard_formatDeliverDate <- function(x) {
+
+  if(is.na(x)){
+    #针对空值进行处理
+    res <-""
+  }else{
+    #处理其他情况
+    nlen <- tsdo::len(x)
+    if(nlen >0){
+      #判断数据长度
+      value <- try(as.numeric(x))
+      if(is.na(value)){
+        res <- x
+
+      }else{
+        #能够成功转换,变成日期后再转文本
+        res <- as.character(as.Date(value,origin='1899-12-30'))
+      }
+
+    }else{
+      res <-""
+    }
+
+
+
+
+
+  }
+
+
+  return(res)
+}
+
+
+
+#' 针对日期数据进行批量处理
+#'
+#' @param data 数据
+#'
+#' @return 返回值
+#' @export
+#'
+#' @examples
+#' oilCard_formatDeliverDates()
+oilCard_formatDeliverDates <- function(data){
+  r <- lapply(data, oilCard_formatDeliverDate)
+  res <- unlist(r)
+  return(res)
+
+
+
+}
+
 #' 读取油卡数据
 #'
 #' @param file 文件名
@@ -173,7 +235,7 @@ oilCard_readExcel <- function(file="data-raw/oilCardData.xlsx") {
                                                            "text", "text", "text", "text", "text",
                                                            "numeric", "text", "text", "date",
                                                            "text", "text", "text", "text", "text",
-                                                           "text", "text", "text", "text", "date",
+                                                           "text", "text", "text", "text", "text",
                                                            "text", "text", "text", "text"))
   #选择相应的数据
   data <-oilCardData[ ,1:25]
@@ -205,7 +267,7 @@ oilCard_readExcel <- function(file="data-raw/oilCardData.xlsx") {
                   'FRemarks')
  names(data) <- col_names
 
- data$FExtendGiftTime <- as.character(data$FExtendGiftTime)
+ data$FExtendGiftTime <- oilCard_formatDeliverDates(data$FExtendGiftTime)
  data$FOrderPhone <- as.character(data$FOrderPhone)
  data$FTmallOrderTime <- as.character(data$FTmallOrderTime)
 
