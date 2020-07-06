@@ -119,7 +119,7 @@ oildCard_selectDB2 <- function(conn=tsda::conn_rds('nsic'),FKeyWord='ljiang1469'
   data <- tsda::sql_select(conn,sql)
   ncount <- nrow(data)
   if(ncount >0){
-    if(is.na(data$FExtendGiftDelivery)){
+    if(is.na(data$FExtendGiftDelivery) | tsdo::len(data$FExtendGiftDelivery) ==0 ){
       #未单号
       msg <- paste0("TMALL ID: ",tsdo::na_replace(data$FTBId,""),"\n",
                     "订单号: ",tsdo::na_replace(data$FOrderId,""),"\n",
