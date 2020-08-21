@@ -1,7 +1,7 @@
 Package: caaspkg
 Type: Package
 Title: package for caas app
-Version: 1.6.0
+Version: 1.6.1
 Author: hulilei
 Maintainer: hulilei <hulilei@takewiki.com.cn>
 Description: More about what it does (maybe more than one line)

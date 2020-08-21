@@ -178,6 +178,8 @@ order by FCumFlag")
   ncount <- nrow(r)
   if(ncount >0){
     my_seq <- r$FIsA
+    #print(FUser)
+    #print(my_seq)
     my_seq[my_seq == 'FALSE'] <-'Q'
     my_seq[my_seq == 'TRUE'] <- 'A'
     r$FGroupId <- qa_getGroupId(my_seq)
@@ -207,19 +209,25 @@ qa_getGroupId <- function(my_seq){
   }else{
     res[1] <-0
   }
-  for (i in 2:ncount) {
-    if(my_seq[i] == 'A'){
-      res[i] = res[i-1]
-    }else{
-      #分情况情况
-      if(my_seq[i-1] =='Q'){
+  if(ncount >1){
+    for (i in 2:ncount) {
+      #print(my_seq[i])
+      if(my_seq[i] == 'A'){
         res[i] = res[i-1]
       }else{
-        res[i] = res[i-1] +1
+        #分情况情况
+        if(my_seq[i-1] =='Q'){
+          res[i] = res[i-1]
+        }else{
+          res[i] = res[i-1] +1
+        }
       }
+
     }
 
   }
+
+
   return(res)
 
 }
