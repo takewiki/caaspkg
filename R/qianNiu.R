@@ -146,6 +146,7 @@ where FUser ='",FUser,"' and FDate ='",FDate,"'
 
 
 
+#针对必能进行必要的优化
 #' 针对日志处理QA对
 #'
 #' @param conn 连接
@@ -153,6 +154,7 @@ where FUser ='",FUser,"' and FDate ='",FDate,"'
 #' @param log_date 日志
 #'
 #' @return 返回值
+#' @include util.R
 #' @export
 #'
 #' @examples
@@ -160,18 +162,19 @@ where FUser ='",FUser,"' and FDate ='",FDate,"'
 log_compressIntoQA<- function(conn=conn_rds_nsic(),FUser ='腊梅',log_date ='2020-08-19') {
 
   #针对数据处理处理
-  sql_1 <- paste0("select 1  from t_kf_logGroup
+  #优化输入
+  sql_1 <- paste0("select 1  from t_kf_logGroup_Input
 where FUser ='",FUser,"' and  log_date ='",log_date,"'")
   r1 <- tsda::sql_select(conn,sql_1)
   ncount1 <- nrow(r1)
   if(ncount1 >0){
     #删除数据
-    sql_del <- paste0("delete  from t_kf_logGroup
+    sql_del <- paste0("delete  from t_kf_logGroup_Input
 where FUser ='",FUser,"' and  log_date ='",log_date,"'")
      tsda::sql_update(conn,sql_del)
   }
 
-  sql_sel <- paste0("select FUser,log_date,FCumFlag,FIsA,author, FLog from vw_kf_log
+  sql_sel <- paste0("select FUser,log_date,FCumFlag,FIsA,author, content from vw_kf_log
 where FUser ='",FUser,"' and log_date='",log_date,"'
 order by FCumFlag")
   r <- tsda::sql_select(conn,sql_sel)
@@ -184,7 +187,14 @@ order by FCumFlag")
     my_seq[my_seq == 'TRUE'] <- 'A'
     r$FGroupId <- qa_getGroupId(my_seq)
     #上传数据
-    tsda::db_writeTable(conn=conn,table_name = 't_kf_logGroup',r_object = r,append = T)
+    #针对数据进行分页处理
+    #进行必能优化
+    ncount_r <- nrow(r)
+    pages <- page_setting(ncount_r,500)
+    lapply(pages, function(page){
+      tsda::db_writeTable(conn=conn,table_name = 't_kf_logGroup_Input',r_object = r[page,],append = T)
+    })
+
 
   }
   return(r)
@@ -275,5 +285,27 @@ log_qaPair_byDate <- function(conn=conn_rds_nsic(),log_date ='2020-08-19'){
     })
   }
 
+
+}
+
+
+#' 重新初始化相关数据
+#'
+#' @param conn 连接
+#'
+#' @return 返回值
+#' @export
+#'
+#' @examples
+#' log_qaPair_reboot()
+log_qaPair_reboot <- function(conn=conn_rds_nsic()) {
+  sql <- paste0("select distinct  log_date  from t_kf_logGroup
+order by  log_date ")
+  res <- tsda::sql_select(conn,sql)
+  res <- res$log_date
+  lapply(res, function(fdate){
+    log_qaPair_byDate(conn=conn,log_date = fdate)
+  })
+  #return(res)
 
 }

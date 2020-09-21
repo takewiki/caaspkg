@@ -130,7 +130,7 @@ qnlog_getBlackList_eq <- function(conn=tsda::conn_rds('nsic')) {
 #' @examples
 #' qnlog_getUserDate()
 qnlog_getUserDate <-function(conn=tsda::conn_rds('nsic'),FStartDate='2020-06-06',FEndDate='2020-06-14'){
-  sql <- paste0("select distinct FUser,log_date from vw_kf_log where FIsA ='FALSE'
+  sql <- paste0("select distinct FUser,log_date from t_kf_logCombined where FIsA ='FALSE'
 and log_date >='",FStartDate,"' and log_date <='",FEndDate,"'")
   data <- tsda::sql_select(conn,sql)
   class(data) <- 'data.frame'
@@ -151,7 +151,7 @@ and log_date >='",FStartDate,"' and log_date <='",FEndDate,"'")
 #' @examples
 #' qnlog_getLog_perUserDate()
 qnlog_getLog_perUserDate <- function(conn=tsda::conn_rds('nsic'),FUser='腊梅',log_date='2020-05-03'){
-  sql <-paste0("select FUser,author,log_date,content from vw_kf_log where FIsA ='FALSE'
+  sql <-paste0("select FUser,author,log_date, FLog as content ,FInterId  from t_kf_logCombined  where FIsA ='FALSE'
 and FUser ='",FUser,"' and log_date = '",log_date,"'")
   data <- tsda::sql_select(conn,sql)
   class(data) <- 'data.frame'
@@ -196,7 +196,7 @@ qnlog_logTag_read<-function(conn=tsda::conn_rds('nsic'),FUser='腊梅',log_date=
 #' @examples
 #' qnlog_logTag_delete()
 qnlog_logTag_delete <- function(conn=tsda::conn_rds('nsic'),FUser='腊梅',log_date='2020-05-03') {
-  sql <- paste0("delete from t_kf_logTag
+  sql <- paste0("delete from t_kf_logTag2
 where FUser ='",FUser,"' and log_date ='",log_date,"'")
   try({
     tsda::sql_update(conn,sql)
@@ -233,7 +233,12 @@ qnlog_logTag_writeDB<-function(conn=tsda::conn_rds('nsic'),FUser='腊梅',log_da
 
     #写入数据
    #tsda::upload_data(conn,'t_kf_logTag',data = data)
-    tsda::db_writeTable(conn = conn,table_name = 't_kf_logTag',r_object = data,append = TRUE)
+    #进行分页处理，优化性能
+    pages <- page_setting(ncount,500)
+    lapply(pages, function(page){
+      tsda::db_writeTable(conn = conn,table_name = 't_kf_logTag2',r_object = data[page,],append = TRUE)
+    })
+
   }
 }
 
@@ -309,7 +314,7 @@ content 问题,
 Fflag  是否打标,
 Ftag_by 黑名单
 
-from t_kf_logTag where log_date >='",FStartDate,"' and log_date <='",FEndDate,"'")
+from t_kf_logTag2 where  log_date >='",FStartDate,"' and log_date <='",FEndDate,"'")
   res <- tsda::sql_select(conn,sql)
   return(res)
 
