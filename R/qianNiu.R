@@ -162,18 +162,19 @@ where FUser ='",FUser,"' and FDate ='",FDate,"'
 log_compressIntoQA<- function(conn=conn_rds_nsic(),FUser ='腊梅',log_date ='2020-08-19') {
 
   #针对数据处理处理
-  #优化输入
+  #按用户按日期进行处理的
+  #优化输入-------
   sql_1 <- paste0("select 1  from t_kf_logGroup_Input
 where FUser ='",FUser,"' and  log_date ='",log_date,"'")
   r1 <- tsda::sql_select(conn,sql_1)
   ncount1 <- nrow(r1)
   if(ncount1 >0){
-    #删除数据
+    #删除数据------
     sql_del <- paste0("delete  from t_kf_logGroup_Input
 where FUser ='",FUser,"' and  log_date ='",log_date,"'")
      tsda::sql_update(conn,sql_del)
   }
-
+  #读取数据到input
   sql_sel <- paste0("select FUser,log_date,FCumFlag,FIsA,author, content from vw_kf_log
 where FUser ='",FUser,"' and log_date='",log_date,"'
 order by FCumFlag")
@@ -185,10 +186,11 @@ order by FCumFlag")
     #print(my_seq)
     my_seq[my_seq == 'FALSE'] <-'Q'
     my_seq[my_seq == 'TRUE'] <- 'A'
+    #产生分组序号-------
     r$FGroupId <- qa_getGroupId(my_seq)
     #上传数据
     #针对数据进行分页处理
-    #进行必能优化
+    #进行必能优化-------
     ncount_r <- nrow(r)
     pages <- page_setting(ncount_r,500)
     lapply(pages, function(page){
